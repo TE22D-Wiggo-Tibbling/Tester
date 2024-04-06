@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class ThirdPersonCam : MonoBehaviour
 {
@@ -15,6 +17,9 @@ public class ThirdPersonCam : MonoBehaviour
 
     public GameObject thirdPersonCam;
     public GameObject combatCam;
+    public GameObject AimCam;
+
+    float aiming;
 
 
     public CameraStyle currentStyle;
@@ -22,7 +27,7 @@ public class ThirdPersonCam : MonoBehaviour
     {
         Basic,
         Combat,
-        Topdown
+        Aim
     }
 
 
@@ -30,18 +35,23 @@ public class ThirdPersonCam : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        currentStyle = CameraStyle.Basic;
     }
 
     private void Update()
     {
+
+
         // switch Style
-        if(Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
-        if(Input.GetKeyDown(KeyCode.Alpha2)) SwitchCameraStyle(CameraStyle.Combat);
+
+
 
 
         //rotation orientation
         Vector3 viewDir = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
         orientation.forward = viewDir.normalized;
+
+        Vector3 dirToCombatLookAt = combatLookAt.position - new Vector3(transform.position.x, combatLookAt.position.y, transform.position.z);
 
         // roate player objekt
         if (currentStyle == CameraStyle.Basic)
@@ -54,29 +64,80 @@ public class ThirdPersonCam : MonoBehaviour
             {
                 playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir.normalized, Time.deltaTime * rotationSpeed);
             }
+            combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.7f;
+            combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+
+            if (Input.GetKeyDown(KeyCode.Alpha2)) SwitchCameraStyle(CameraStyle.Combat);
         }
+
         else if (currentStyle == CameraStyle.Combat)
         {
-            Vector3 dirToCombatLookAt = combatLookAt.position - new Vector3(transform.position.x, combatLookAt.position.y, transform.position.z);
             orientation.forward = dirToCombatLookAt.normalized;
 
             playerObj.forward = dirToCombatLookAt.normalized;
+
+            thirdPersonCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.75f;
+            thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+
+            AimCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value;
+            AimCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+
+            if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
+            if (Input.GetKeyDown(KeyCode.Space)) SwitchCameraStyle(CameraStyle.Aim);
+            
         }
+
+
+
+
+        else if (currentStyle == CameraStyle.Aim)
+        {
+            orientation.forward = dirToCombatLookAt.normalized;
+
+            playerObj.forward = dirToCombatLookAt.normalized;
+
+            thirdPersonCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.75f;
+            combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = AimCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value;
+
+            thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = AimCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+            combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = AimCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+
+
+            if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
+            if (Input.GetKeyUp(KeyCode.Space)) SwitchCameraStyle(CameraStyle.Combat);
+        }
+
+
+
     }
 
 
     private void SwitchCameraStyle(CameraStyle newStyle)
     {
-        combatCam.SetActive(false);
-        thirdPersonCam.SetActive(false);
+        // thirdPersonCam.SetActive(false);
+        // combatCam.SetActive(false);
+
+        combatCam.GetComponent<CinemachineFreeLook>().Priority = 0;
+        thirdPersonCam.GetComponent<CinemachineFreeLook>().Priority = 0;
+        AimCam.GetComponent<CinemachineFreeLook>().Priority = 0;
 
 
-        if (newStyle == CameraStyle.Basic) thirdPersonCam.SetActive(true);
-        if (newStyle == CameraStyle.Combat) combatCam.SetActive(true);
+        // if (newStyle == CameraStyle.Basic) thirdPersonCam.SetActive(true);
+        if (newStyle == CameraStyle.Basic) thirdPersonCam.GetComponent<CinemachineFreeLook>().Priority = 1;
 
+        // if (newStyle == CameraStyle.Combat) combatCam.SetActive(true);
+        if (newStyle == CameraStyle.Combat) combatCam.GetComponent<CinemachineFreeLook>().Priority = 1;
+
+        if (newStyle == CameraStyle.Aim) AimCam.GetComponent<CinemachineFreeLook>().Priority = 1;
 
         currentStyle = newStyle;
     }
+
+    // void OnAim(InputValue value)
+    // {
+    //     aiming = value.Get<float>();
+    //     Debug.Log("jalla");
+    // }
 
 }
 
