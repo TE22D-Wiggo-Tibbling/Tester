@@ -4,10 +4,12 @@ using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using Unity.VisualScripting;
 
 public class ThirdPersonCam : MonoBehaviour
 {
     [Header("References")]
+    public GameObject crosshair;
     public Transform orientation;
     public Transform player;
     public Transform playerObj;
@@ -19,17 +21,18 @@ public class ThirdPersonCam : MonoBehaviour
     public GameObject combatCam;
     public GameObject AimCam;
 
-    float aiming;
 
 
     public CameraStyle currentStyle;
     public enum CameraStyle
     {
         Basic,
-        Combat,
-        Aim
+        Combat
     }
 
+
+    public LayerMask aimCollaiderLayerMask;
+    public Transform debugTransform;
 
     private void Start()
     {
@@ -40,6 +43,8 @@ public class ThirdPersonCam : MonoBehaviour
 
     private void Update()
     {
+            if (Input.GetMouseButton(1)) SwitchCameraStyle(CameraStyle.Combat);
+            else SwitchCameraStyle(CameraStyle.Basic);
 
 
         // switch Style
@@ -64,10 +69,11 @@ public class ThirdPersonCam : MonoBehaviour
             {
                 playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir.normalized, Time.deltaTime * rotationSpeed);
             }
-            combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.7f;
+            combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.62f;
             combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
 
-            if (Input.GetKeyDown(KeyCode.Alpha2)) SwitchCameraStyle(CameraStyle.Combat);
+            
+           crosshair.SetActive(false);
         }
 
         else if (currentStyle == CameraStyle.Combat)
@@ -79,33 +85,21 @@ public class ThirdPersonCam : MonoBehaviour
             thirdPersonCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.75f;
             thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
 
-            AimCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value;
-            AimCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
+            // if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
+           
+           crosshair.SetActive(true);
 
-            if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
-            if (Input.GetKeyDown(KeyCode.Space)) SwitchCameraStyle(CameraStyle.Aim);
-            
+           Vector2 screenCenterPoint = new Vector2(Screen.width/2f,Screen.height/2f);
+           Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
+           if(Physics.Raycast(ray,out RaycastHit raycastHit,999f,aimCollaiderLayerMask)){
+            debugTransform.position=raycastHit.point;
+           }
         }
 
 
 
 
-        else if (currentStyle == CameraStyle.Aim)
-        {
-            orientation.forward = dirToCombatLookAt.normalized;
-
-            playerObj.forward = dirToCombatLookAt.normalized;
-
-            thirdPersonCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.75f;
-            combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = AimCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value;
-
-            thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = AimCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
-            combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = AimCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
-
-
-            if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
-            if (Input.GetKeyUp(KeyCode.Space)) SwitchCameraStyle(CameraStyle.Combat);
-        }
+       
 
 
 
@@ -119,7 +113,7 @@ public class ThirdPersonCam : MonoBehaviour
 
         combatCam.GetComponent<CinemachineFreeLook>().Priority = 0;
         thirdPersonCam.GetComponent<CinemachineFreeLook>().Priority = 0;
-        AimCam.GetComponent<CinemachineFreeLook>().Priority = 0;
+  
 
 
         // if (newStyle == CameraStyle.Basic) thirdPersonCam.SetActive(true);
@@ -128,8 +122,7 @@ public class ThirdPersonCam : MonoBehaviour
         // if (newStyle == CameraStyle.Combat) combatCam.SetActive(true);
         if (newStyle == CameraStyle.Combat) combatCam.GetComponent<CinemachineFreeLook>().Priority = 1;
 
-        if (newStyle == CameraStyle.Aim) AimCam.GetComponent<CinemachineFreeLook>().Priority = 1;
-
+        
         currentStyle = newStyle;
     }
 
