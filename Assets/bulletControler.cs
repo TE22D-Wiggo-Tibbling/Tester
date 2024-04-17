@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class bulletControler : MonoBehaviour
 {
-   Rigidbody bulletRigidbody;
+   public Rigidbody bulletRigidbody;
 
    public float speed = 10f;
 
    private void Awake() {
-    bulletRigidbody = GetComponent<Rigidbody>();
+    // bulletRigidbody = GetComponent<Rigidbody>();
    }
 
    private void Start() {

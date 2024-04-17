@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 using Unity.VisualScripting;
 
+
 public class ThirdPersonCam : MonoBehaviour
 {
     [Header("References")]
@@ -34,6 +35,11 @@ public class ThirdPersonCam : MonoBehaviour
     public LayerMask aimCollaiderLayerMask;
     public Transform debugTransform;
 
+
+    bool shoot;
+    public Transform bulletProjektilePrefab;
+    public Transform spawnBulletPosition;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -43,6 +49,9 @@ public class ThirdPersonCam : MonoBehaviour
 
     private void Update()
     {
+            Vector3 mouseWorldPosition = Vector3.zero;
+
+
             if (Input.GetMouseButton(1)) SwitchCameraStyle(CameraStyle.Combat);
             else SwitchCameraStyle(CameraStyle.Basic);
 
@@ -93,13 +102,16 @@ public class ThirdPersonCam : MonoBehaviour
            Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
            if(Physics.Raycast(ray,out RaycastHit raycastHit,999f,aimCollaiderLayerMask)){
             debugTransform.position=raycastHit.point;
+            mouseWorldPosition=raycastHit.point;
            }
+
+
+        if(shoot){
+            Vector3 aimDir = (mouseWorldPosition - spawnBulletPosition.position).normalized;
+            Instantiate(bulletProjektilePrefab,spawnBulletPosition.position, Quaternion.LookRotation(aimDir,Vector3.up));
+            shoot = false;
         }
-
-
-
-
-       
+        }
 
 
 
@@ -132,7 +144,15 @@ public class ThirdPersonCam : MonoBehaviour
     //     Debug.Log("jalla");
     // }
 
+void OnShoot(InputValue value){
+shootInput(value.isPressed);
 }
+void shootInput(bool newShootState){
+    shoot = newShootState;
+}
+
+}
+
 
 
 

@@ -26,6 +26,10 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody rb;
 
+
+
+
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -40,13 +44,17 @@ public class PlayerMovement : MonoBehaviour
         SpeedControl();
 
         // handle drag
-        if (grounded) {
-        rb.drag = groundDrag;
+        if (grounded)
+        {
+            rb.drag = groundDrag;
         }
         else
         {
-        rb.drag = 0;    
-        } 
+            rb.drag = 0;
+        }
+
+
+
     }
 
     private void FixedUpdate()
@@ -81,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
 
 
 
-
+ 
 
 
 
