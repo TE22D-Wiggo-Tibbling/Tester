@@ -84,6 +84,8 @@ public class ThirdPersonCam : MonoBehaviour
             {
                 playerObj.forward = Vector3.Slerp(playerObj.forward, inputDir.normalized, Time.deltaTime * rotationSpeed);
             }
+
+
             combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.62f;
             combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
 

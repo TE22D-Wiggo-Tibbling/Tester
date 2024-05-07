@@ -8,12 +8,6 @@ public class Button : MonoBehaviour
 {
 private void Update() {
     if(Input.GetAxisRaw("Jump")>0)
-    SceneManager.LoadScene(1);
+    SceneManager.LoadScene(2);
 }
- public void GotoSceneZero()
-    {
-        SceneManager.LoadScene(1);
-
-    }
-
 }
