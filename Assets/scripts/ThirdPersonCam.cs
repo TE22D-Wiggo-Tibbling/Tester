@@ -40,6 +40,8 @@ public class ThirdPersonCam : MonoBehaviour
     public Transform bulletProjektilePrefab;
     public Transform spawnBulletPosition;
 
+    public float moveSpeed;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -47,13 +49,14 @@ public class ThirdPersonCam : MonoBehaviour
         currentStyle = CameraStyle.Basic;
     }
 
-    private void Update()
+    void Update()
     {
-            Vector3 mouseWorldPosition = Vector3.zero;
+           thirdPersonCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.6f;
+        Vector3 mouseWorldPosition = Vector3.zero;
 
 
-            if (Input.GetMouseButton(1)) SwitchCameraStyle(CameraStyle.Combat);
-            else SwitchCameraStyle(CameraStyle.Basic);
+        if (Input.GetMouseButton(1)) SwitchCameraStyle(CameraStyle.Combat);
+        else SwitchCameraStyle(CameraStyle.Basic);
 
 
         // switch Style
@@ -70,6 +73,9 @@ public class ThirdPersonCam : MonoBehaviour
         // roate player objekt
         if (currentStyle == CameraStyle.Basic)
         {
+            moveSpeed = 10f;
+
+
             float horizontalInout = Input.GetAxisRaw("Horizontal");
             float verticalInput = Input.GetAxisRaw("Vertical");
             Vector3 inputDir = orientation.forward * verticalInput + orientation.right * horizontalInout;
@@ -81,12 +87,14 @@ public class ThirdPersonCam : MonoBehaviour
             combatCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.62f;
             combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
 
-            
-           crosshair.SetActive(false);
+
+            crosshair.SetActive(false);
         }
 
         else if (currentStyle == CameraStyle.Combat)
         {
+        moveSpeed = 5;
+
             orientation.forward = dirToCombatLookAt.normalized;
 
             playerObj.forward = dirToCombatLookAt.normalized;
@@ -95,22 +103,24 @@ public class ThirdPersonCam : MonoBehaviour
             thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
 
             // if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
-           
-           crosshair.SetActive(true);
 
-           Vector2 screenCenterPoint = new Vector2(Screen.width/2f,Screen.height/2f);
-           Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
-           if(Physics.Raycast(ray,out RaycastHit raycastHit,999f,aimCollaiderLayerMask)){
-            debugTransform.position=raycastHit.point;
-            mouseWorldPosition=raycastHit.point;
-           }
+            crosshair.SetActive(true);
+
+            Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
+            Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
+            if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimCollaiderLayerMask))
+            {
+                // debugTransform.position=raycastHit.point;
+                mouseWorldPosition = raycastHit.point;
+            }
 
 
-        if(shoot){
-            Vector3 aimDir = (mouseWorldPosition - spawnBulletPosition.position).normalized;
-            Instantiate(bulletProjektilePrefab,spawnBulletPosition.position, Quaternion.LookRotation(aimDir,Vector3.up));
-            shoot = false;
-        }
+            if (shoot)
+            {
+                Vector3 aimDir = (mouseWorldPosition - spawnBulletPosition.position).normalized;
+                Instantiate(bulletProjektilePrefab, spawnBulletPosition.position, Quaternion.LookRotation(aimDir, Vector3.up));
+                shoot = false;
+            }
         }
 
 
@@ -125,7 +135,7 @@ public class ThirdPersonCam : MonoBehaviour
 
         combatCam.GetComponent<CinemachineFreeLook>().Priority = 0;
         thirdPersonCam.GetComponent<CinemachineFreeLook>().Priority = 0;
-  
+
 
 
         // if (newStyle == CameraStyle.Basic) thirdPersonCam.SetActive(true);
@@ -134,7 +144,7 @@ public class ThirdPersonCam : MonoBehaviour
         // if (newStyle == CameraStyle.Combat) combatCam.SetActive(true);
         if (newStyle == CameraStyle.Combat) combatCam.GetComponent<CinemachineFreeLook>().Priority = 1;
 
-        
+
         currentStyle = newStyle;
     }
 
@@ -144,12 +154,14 @@ public class ThirdPersonCam : MonoBehaviour
     //     Debug.Log("jalla");
     // }
 
-void OnShoot(InputValue value){
-shootInput(value.isPressed);
-}
-void shootInput(bool newShootState){
-    shoot = newShootState;
-}
+    void OnShoot(InputValue value)
+    {
+        shootInput(value.isPressed);
+    }
+    void shootInput(bool newShootState)
+    {
+        shoot = newShootState;
+    }
 
 }
 

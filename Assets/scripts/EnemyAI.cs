@@ -5,87 +5,35 @@ using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
-public NavMeshAgent agent;
 
-public Transform player;
+public Transform Player;
 
-public LayerMask ground, whatIsPayer;
-
-// Patroling
-public Vector3 walkPoint;
-bool walkPointSet;
-public float walkPointRange;
-
-// Attacking
-public float timeBetwenAttack;
-bool alredyAttacked;
-
-// States
-public float sightRange, attackRange;
-public bool playerInSightRange, playerInAttackRange;
+public float MinDist = 10;
+public float MoveSpeed = 4;
+public float MaxDist = 100;
 
 private void Awake() {
-    player = GameObject.Find("Player").transform;
-    agent = GetComponent<NavMeshAgent>();
+    Player = GameObject.Find("Player").transform;
+  
 }
 
 private void Update() {
-    // check for sight and attack range
-    playerInSightRange = Physics.CheckSphere(transform.position,sightRange,whatIsPayer);
-    playerInAttackRange = Physics.CheckSphere(transform.position,attackRange,whatIsPayer);
 
-    if(!playerInSightRange && !playerInAttackRange) Patroling();
-    if(!playerInSightRange && playerInAttackRange) Chasing();
-    if(playerInSightRange && playerInAttackRange) Attacking();
+ transform.LookAt(Player);
+            transform.position += transform.forward * MoveSpeed * Time.deltaTime;
 
-    Rigidbody rb = GetComponent<Rigidbody>();
+      
     
 }
 
-private void Patroling(){
-    if(!walkPointSet) SerchWalkPoint();  
-
-    if(walkPointSet){
-        agent.SetDestination(walkPoint);
-    }
-
-    Vector3 distanceToWalkPoint = transform.position - walkPoint;
-
-    // Walkpoint Reched
-    if(distanceToWalkPoint.magnitude < 1f){
-        walkPointSet=false;
+private void OnCollisionEnter(Collision other) {
+    if(other.gameObject.tag == "Player"){
+     if (other.gameObject.GetComponent<Health>() != null){
+            other.gameObject.GetComponent<Health>().health -= 25;
+         }
+    Destroy(this.gameObject);
     }
 }
-private void SerchWalkPoint(){
-    // Calculate random point in range
-    float randomZ = Random.Range(-walkPointRange,walkPointRange);
-    float randomX = Random.Range(-walkPointRange,walkPointRange);
 
-    walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
 
-    if(Physics.Raycast(walkPoint, -transform.up,ground)){
-        walkPointSet = true;
-    }
-}
-private void Chasing(){
-agent.SetDestination(player.position);
-}
-private void Attacking(){
-// Stoping enemy
-agent.SetDestination(transform.position);
-transform.LookAt(player);
-
-if(!alredyAttacked){
-    // Attack
-
-    // 
-    alredyAttacked = true;
-    Invoke(nameof(ResetAttack), timeBetwenAttack);
-}
-}
-
-private void ResetAttack()
-{
-alredyAttacked = false;
-}
 }
