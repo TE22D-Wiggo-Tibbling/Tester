@@ -73,7 +73,7 @@ public class ThirdPersonCam : MonoBehaviour
         // roate player objekt
         if (currentStyle == CameraStyle.Basic)
         {
-            moveSpeed = 10f;
+           
 
 
             float horizontalInout = Input.GetAxisRaw("Horizontal");
@@ -95,7 +95,6 @@ public class ThirdPersonCam : MonoBehaviour
 
         else if (currentStyle == CameraStyle.Combat)
         {
-        moveSpeed = 5;
 
             orientation.forward = dirToCombatLookAt.normalized;
 
@@ -103,8 +102,6 @@ public class ThirdPersonCam : MonoBehaviour
 
             thirdPersonCam.GetComponent<CinemachineFreeLook>().m_YAxis.Value = 0.75f;
             thirdPersonCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value = combatCam.GetComponent<CinemachineFreeLook>().m_XAxis.Value;
-
-            // if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchCameraStyle(CameraStyle.Basic);
 
             crosshair.SetActive(true);
 
@@ -150,11 +147,6 @@ public class ThirdPersonCam : MonoBehaviour
         currentStyle = newStyle;
     }
 
-    // void OnAim(InputValue value)
-    // {
-    //     aiming = value.Get<float>();
-    //     Debug.Log("jalla");
-    // }
 
     void OnShoot(InputValue value)
     {

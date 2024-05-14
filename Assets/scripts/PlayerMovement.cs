@@ -26,14 +26,16 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody rb;
 
+//  public Camera camera;
 
 
 
 
-    private void Start()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        
     }
 
     void Update()
@@ -79,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
         }
     }
-    
+
     private void MovePlayer()
     {
         // calculate movement direction
